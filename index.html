@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thế Giới Di Động - ພາສາລາວ Store</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Noto Sans Lao -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Lao:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            yellow: '#ffd400',
+                            yellowDark: '#e6be00',
+                            black: '#1f1f1f',
+                            blue: '#0071e3',
+                            blueDark: '#0058b0',
+                            red: '#d0021b',
+                            bgGray: '#f3f3f3'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans Lao', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes pulse-custom {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.03); }
+        }
+        .animate-pulse-custom { animation: pulse-custom 2s infinite ease-in-out; }
+    </style>
+</head>
+<body class="bg-brand-bgGray font-sans text-gray-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-brand-yellow sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-2 sm:px-4 py-2 flex flex-col gap-2">
+            
+            <div class="w-full flex items-center justify-between">
+                <a href="#" onclick="filterByCategory('all'); return false;" class="flex items-center gap-2 group flex-shrink-0">
+                    <div class="bg-black text-brand-yellow font-black text-xl md:text-2xl h-10 w-10 md:h-11 md:w-11 rounded-full flex items-center justify-center shadow-inner group-hover:scale-105 transition-transform">
+                        <i class="fa-solid font-bold text-lg md:text-xl">tg</i>
+                    </div>
+                    <div class="hidden lg:block font-black text-xl tracking-tight text-black leading-none">
+                        thegioididong<span class="text-red-600 text-2xl">.</span>com
+                    </div>
+                </a>
+
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    <!-- Dynamic Auth Area -->
+                    <div id="authHeaderArea"></div>
+
+                    <!-- Order History Button -->
+                    <button onclick="toggleOrdersModal()" class="flex items-center gap-1 bg-black/10 hover:bg-black/20 text-black font-bold text-xs px-2.5 py-1.5 rounded-full transition border border-black/10">
+                        <i class="fa-solid fa-receipt text-xs"></i>
+                        <span class="hidden sm:inline" data-i18n="orderHistory">ປະຫວັດຊື້</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- SEARCH BAR & CART ROW -->
+            <div class="w-full flex items-center gap-2 pb-1 relative">
+                <div class="flex-1 relative">
+                    <input type="text" id="searchInput" oninput="handleSearch()" placeholder="" 
+                        class="w-full py-2 pl-4 pr-10 text-xs sm:text-sm rounded-full border-none focus:outline-none focus:ring-2 focus:ring-brand-blue shadow-inner text-gray-800 bg-white">
+                    <button onclick="handleSearch()" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-black">
+                        <i class="fa-solid fa-magnifying-glass text-sm sm:text-base"></i>
+                    </button>
+                    <div id="searchDropdown" class="hidden absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-80 overflow-y-auto"></div>
+                </div>
+
+                <button onclick="toggleCartModal()" class="relative flex items-center gap-1.5 bg-black text-white px-3 py-2 rounded-full hover:bg-gray-800 transition shadow text-xs flex-shrink-0">
+                    <div class="relative flex items-center justify-center">
+                        <i class="fa-solid fa-cart-shopping text-xs sm:text-sm text-brand-yellow"></i>
+                        <span id="cartCount" class="absolute -top-2.5 -right-2.5 bg-red-600 text-white text-[9px] font-bold h-4 w-4 rounded-full flex items-center justify-center border border-brand-yellow">0</span>
+                    </div>
+                    <span class="hidden sm:inline font-bold uppercase tracking-wider text-[11px] text-brand-yellow pl-1" data-i18n="cartTitle">ກະຕ່າສິນຄ້າ</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- CATEGORY NAV BAR -->
+        <nav class="bg-black text-white overflow-x-auto no-scrollbar shadow-inner text-xs sm:text-sm">
+            <div class="max-w-7xl mx-auto flex items-center px-2 py-1 space-x-1 sm:space-x-2 whitespace-nowrap">
+                <button onclick="filterByCategory('all')" class="cat-btn active border-b-2 border-brand-yellow text-brand-yellow px-3 py-2 font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-grip"></i> <span data-i18n="catAll">ທັງໝົດ</span>
+                </button>
+                <button onclick="filterByCategory('phone')" class="cat-btn border-b-2 border-transparent px-3 py-2 font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-mobile-screen-button"></i> <span data-i18n="catPhone">ໂທລະສັບ</span>
+                </button>
+                <button onclick="filterByCategory('laptop')" class="cat-btn border-b-2 border-transparent px-3 py-2 font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-laptop"></i> <span data-i18n="catLaptop">ແລັບທັອບ</span>
+                </button>
+                <button onclick="filterByCategory('tablet')" class="cat-btn border-b-2 border-transparent px-3 py-2 font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-tablet-screen-button"></i> <span data-i18n="catTablet">ແທັບເລັດ</span>
+                </button>
+                <button onclick="filterByCategory('accessory')" class="cat-btn border-b-2 border-transparent px-3 py-2 font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-headphones"></i> <span data-i18n="catAccessory">ອຸປະກອນເສີມ</span>
+                </button>
+                <button onclick="filterByCategory('watch')" class="cat-btn border-b-2 border-transparent px-3 py-2 font-medium flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-stopwatch"></i> <span data-i18n="catWatch">ໂມງ</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl mx-auto px-2 sm:px-4 py-4 flex-1 w-full space-y-6">
+
+        <!-- HERO BANNER SLIDER -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div class="lg:col-span-2 relative rounded-2xl overflow-hidden shadow-md group bg-black h-48 sm:h-64 md:h-80">
+                <div id="bannerContainer" class="flex h-full transition-transform duration-500">
+                    <div class="min-w-full h-full relative">
+                        <img src="https://images.unsplash.com/photo-1616410011236-7a42121dd981?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover opacity-90" alt="iPhone Promo">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
+                            <span class="bg-brand-yellow text-black text-xs font-bold uppercase px-2 py-1 rounded w-max mb-2" data-i18n="heroBadge1">ສິນຄ້າສຸດຍອດ 2026</span>
+                            <h2 class="text-xl sm:text-2xl font-bold">iPhone 15 Pro Max 1TB</h2>
+                            <p class="text-xs sm:text-sm text-gray-200" data-i18n="heroDesc1">ໄທເທນຽມທຳມະຊາດ - ຫຼຸດທັນທີເມື່ອເອົາເຄື່ອງເກົ່າປ່ຽນໃໝ່.</p>
+                        </div>
+                    </div>
+                    <div class="min-w-full h-full relative">
+                        <img src="https://images.unsplash.com/photo-1603302576837-37561b2e2302?auto=format&fit=crop&w=1200&q=80" class="w-full h-full object-cover opacity-90" alt="Laptop Promo">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6 text-white">
+                            <span class="bg-brand-blue text-white text-xs font-bold uppercase px-2 py-1 rounded w-max mb-2" data-i18n="heroBadge2">ຕ້ອນຮັບເປີດສົກຮຽນ</span>
+                            <h2 class="text-xl sm:text-2xl font-bold">MacBook Air M3 Series</h2>
+                            <p class="text-xs sm:text-sm text-gray-200" data-i18n="heroDesc2">ບາງເບົາ, ໃຊ້ງານໄດ້ 18 ຊົ່ວໂມງ. ປ່ຽນໃໝ່ຮັບປະກັນ 2 ປີ.</p>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="prevBanner()" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white h-9 w-9 rounded-full flex items-center justify-center hover:bg-black transition"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick="nextBanner()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white h-9 w-9 rounded-full flex items-center justify-center hover:bg-black transition"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+
+            <!-- Sub Promo Banners -->
+            <div class="grid grid-cols-2 lg:grid-cols-1 gap-3 h-full">
+                <div class="bg-gradient-to-r from-red-600 to-orange-500 rounded-2xl p-4 text-white flex flex-col justify-between shadow-md relative overflow-hidden">
+                    <div>
+                        <span class="text-[11px] uppercase font-extrabold bg-white text-red-600 px-2 py-0.5 rounded shadow" data-i18n="studentPromoTag">ສິດທິພິເສດ S-Student</span>
+                        <h3 class="font-extrabold text-base sm:text-lg mt-2" data-i18n="studentPromoTitle">ຫຼຸດເພີ່ມ 5% ສຳລັບນັກຮຽນ</h3>
+                        <p class="text-xs opacity-90" data-i18n="studentPromoDesc">ນຳໃຊ້ຮ່ວມກັບໂປຣໂມຊັນອື່ນໆໄດ້</p>
+                    </div>
+                    <button onclick="filterByCategory('laptop')" class="mt-2 bg-black text-white text-xs font-bold py-2 px-3 rounded-lg w-max hover:bg-gray-900 transition" data-i18n="btnBuyLaptop">ຊື້ແລັບທັອບເລີຍ</button>
+                </div>
+                <div class="bg-gradient-to-r from-blue-700 to-indigo-800 rounded-2xl p-4 text-white flex flex-col justify-between shadow-md relative overflow-hidden">
+                    <div>
+                        <span class="text-[11px] uppercase font-extrabold bg-brand-yellow text-black px-2 py-0.5 rounded shadow" data-i18n="installmentTag">ຜ່ອນ 0%</span>
+                        <h3 class="font-extrabold text-base sm:text-lg mt-2" data-i18n="installmentTitle">ອະນຸມັດພາຍໃນ 5 ນາທີ</h3>
+                        <p class="text-xs opacity-90" data-i18n="installmentDesc">ບໍ່ຕ້ອງມີໃບຢັ້ງຢືນລາຍຮັບ</p>
+                    </div>
+                    <button onclick="filterByCategory('phone')" class="mt-2 bg-brand-yellow text-black text-xs font-bold py-2 px-3 rounded-lg w-max hover:bg-yellow-400 transition" data-i18n="btnBuyInstallment">ຊື້ຜ່ອນ</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FLASH SALE COUNTDOWN SECTION -->
+        <section class="bg-gradient-to-r from-red-700 via-red-600 to-orange-600 rounded-2xl p-4 sm:p-5 text-white shadow-xl">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4 pb-3 border-b border-white/20">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-1.5 bg-yellow-400 text-black px-3 py-1 rounded-full font-black text-sm uppercase tracking-wider animate-pulse-custom">
+                        <i class="fa-solid fa-bolt text-red-600 text-lg"></i> FLASH SALE
+                    </div>
+                    <span class="text-xs sm:text-sm font-medium hidden sm:inline" data-i18n="flashSaleEnding">ລາຄາພິເສດສິ້ນສຸດໃນ:</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold uppercase" data-i18n="endsIn">ສິ້ນສຸດໃນ:</span>
+                    <div class="flex items-center gap-1 font-mono font-bold text-sm text-black">
+                        <span id="hours" class="bg-white px-2 py-1 rounded shadow">02</span>:
+                        <span id="minutes" class="bg-white px-2 py-1 rounded shadow">45</span>:
+                        <span id="seconds" class="bg-white px-2 py-1 rounded shadow">12</span>
+                    </div>
+                </div>
+            </div>
+            <div id="flashSaleContainer" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></div>
+        </section>
+
+        <!-- FILTER & SORT BAR -->
+        <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto no-scrollbar py-1">
+                    <span class="text-xs font-bold text-gray-500 uppercase whitespace-nowrap"><i class="fa-solid fa-filter"></i> <span data-i18n="brandLabel">ແບຣນ:</span></span>
+                    <button onclick="filterByBrand('all')" class="brand-btn bg-black text-white text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap shadow-sm" data-i18n="brandAll">ທັງໝົດ</button>
+                    <button onclick="filterByBrand('Apple')" class="brand-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap">Apple</button>
+                    <button onclick="filterByBrand('Samsung')" class="brand-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap">Samsung</button>
+                    <button onclick="filterByBrand('Xiaomi')" class="brand-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap">Xiaomi</button>
+                    <button onclick="filterByBrand('Asus')" class="brand-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap">Asus</button>
+                    <button onclick="filterByBrand('Sony')" class="brand-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap">Sony</button>
+                    <button onclick="filterByBrand('Oppo')" class="brand-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap">Oppo</button>
+                    <button onclick="filterByBrand('Dell')" class="brand-btn bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs px-3 py-1.5 rounded-full font-medium transition whitespace-nowrap">Dell</button>
+                </div>
+
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <select id="priceFilter" onchange="applyFilters()" class="bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-xl p-2 focus:ring-brand-blue font-medium">
+                        <option value="all" data-i18n="priceAll">ລາຄາ: ທັງໝົດ</option>
+                        <option value="under-10" data-i18n="priceUnder10">ຕ່ຳກວ່າ 400$</option>
+                        <option value="10-20" data-i18n="price10to20">ລະຫວ່າງ 400$ - 800$</option>
+                        <option value="over-20" data-i18n="priceOver20">ຫຼາຍກວ່າ 800$</option>
+                    </select>
+
+                    <select id="sortSelect" onchange="applyFilters()" class="bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-xl p-2 focus:ring-brand-blue font-medium">
+                        <option value="featured" data-i18n="sortFeatured">ໂດດເດັ່ນ</option>
+                        <option value="price-asc" data-i18n="sortAsc">ລາຄາ: ຕ່ຳຫາສູງ</option>
+                        <option value="price-desc" data-i18n="sortDesc">ລາຄາ: ສູງຫາຕ່ຳ</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN PRODUCT GRID SECTION -->
+        <section>
+            <div class="flex items-center justify-between mb-4">
+                <h2 id="sectionTitle" class="text-xl font-extrabold text-gray-900 tracking-tight flex items-center gap-2">
+                    <span class="w-2 h-6 bg-brand-yellow rounded-full inline-block"></span> <span data-i18n="allProducts">ສິນຄ້າທັງໝົດ</span>
+                </h2>
+                <span id="productCount" class="text-xs font-semibold text-gray-500"></span>
+            </div>
+
+            <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
+
+            <div id="emptyState" class="hidden text-center py-12 bg-white rounded-2xl shadow-sm border border-gray-200">
+                <i class="fa-solid fa-box-open text-5xl text-gray-300 mb-3"></i>
+                <h3 class="text-lg font-bold text-gray-700" data-i18n="noProducts">ບໍ່ພົບສິນຄ້າ!</h3>
+                <p class="text-xs text-gray-500 mt-1" data-i18n="tryResetFilter">ລອງປັບຕົວຕອງລາຄາ ຫຼື ເລືອກແບຣນອື່ນ.</p>
+                <button onclick="resetFilters()" class="mt-4 bg-brand-yellow text-black font-bold text-xs px-4 py-2 rounded-xl hover:bg-yellow-400 transition" data-i18n="clearFilters">ລຶບຕົວຕອງທັງໝົດ</button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FLOATING CONTACT BUTTONS -->
+    <div class="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        <a id="floatingPhoneBtn" href="tel:18001060" class="w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110" title="ໂທຫາສາຍດ່ວນ">
+            <i class="fa-solid fa-phone text-lg"></i>
+        </a>
+        <a id="floatingWhatsappBtn" href="https://wa.me/84901234567" target="_blank" class="w-12 h-12 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110" title="Chat WhatsApp">
+            <i class="fa-brands fa-whatsapp text-xl"></i>
+        </a>
+    </div>
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div id="productModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-4xl w-full p-4 sm:p-6 relative shadow-2xl overflow-hidden my-8 max-h-[90vh] overflow-y-auto">
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full h-9 w-9 flex items-center justify-center transition z-10">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- AUTH MODAL -->
+    <div id="registerModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full h-8 w-8 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex border-b mb-4">
+                <button onclick="switchAuthTab('login')" id="loginTabBtn" class="flex-1 pb-2 font-extrabold text-sm text-brand-blue border-b-2 border-brand-blue" data-i18n="loginTab">ເຂົ້າສູ່ລະບົບ</button>
+                <button onclick="switchAuthTab('register')" id="registerTabBtn" class="flex-1 pb-2 font-extrabold text-sm text-gray-400 border-b-2 border-transparent" data-i18n="registerTab">ລົງທະບຽນບັນຊີ</button>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-3 text-xs sm:text-sm">
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="phoneLabel">ເບີໂທລະສັບ *</label>
+                    <input type="tel" id="loginPhone" required placeholder="20XXXXXXXX" class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="emailLabel">ອີເມວ *</label>
+                    <input type="email" id="loginEmail" required placeholder="example@gmail.com" class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div class="border-t pt-3 mt-4 flex items-center justify-end">
+                    <button type="submit" class="bg-brand-yellow text-black font-extrabold px-6 py-2.5 rounded-xl hover:bg-yellow-400 transition shadow" data-i18n="confirmLogin">ເຂົ້າສູ່ລະບົບເລີຍ</button>
+                </div>
+            </form>
+
+            <form id="registerForm" onsubmit="handleRegisterSubmit(event)" class="space-y-3 text-xs sm:text-sm hidden">
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="fullNameLabel">ຊື່ ແລະ ນາມສະກຸນ *</label>
+                    <input type="text" id="regName" required placeholder="ທ້າວ ສົມສັກ" class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="phoneLabel">ເບີໂທລະສັບ *</label>
+                    <input type="tel" id="regPhone" required placeholder="20XXXXXXXX" class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="dobLabel">ວັນເດືອນປີເກີດ *</label>
+                    <input type="date" id="regDob" required class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="addressLabel">ທີ່ຢູ່ *</label>
+                    <textarea id="regAddr" required rows="2" placeholder="ບ້ານ, ເມືອງ, ນະຄອນຫຼວງ..." class="w-full border border-gray-300 rounded-xl p-2.5 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="emailLabel">ອີເມວ *</label>
+                    <input type="email" id="regEmail" required placeholder="example@gmail.com" class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div class="border-t pt-3 mt-4 flex items-center justify-end">
+                    <button type="submit" class="bg-brand-yellow text-black font-extrabold px-6 py-2.5 rounded-xl hover:bg-yellow-400 transition shadow" data-i18n="confirmRegister">ລົງທະບຽນເລີຍ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="profileModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 relative shadow-2xl">
+            <button onclick="toggleProfileModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full h-8 w-8 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="text-center mb-4">
+                <div class="w-16 h-16 bg-brand-yellow text-black rounded-full flex items-center justify-center mx-auto mb-2 text-2xl font-black">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <h3 id="profileNameDisplay" class="text-lg font-extrabold text-gray-900"></h3>
+                <span class="text-xs text-gray-500" data-i18n="memberAccount">ບັນຊີສະມາຊິກ</span>
+            </div>
+            <div class="space-y-2 text-xs bg-gray-50 p-4 rounded-2xl border mb-4">
+                <div class="flex justify-between"><span class="text-gray-500" data-i18n="phoneLabel">ເບີໂທລະສັບ:</span> <span id="profilePhoneDisplay" class="font-semibold"></span></div>
+                <div class="flex justify-between"><span class="text-gray-500" data-i18n="dobLabel">ວັນເກີດ:</span> <span id="profileDobDisplay" class="font-semibold"></span></div>
+                <div class="flex justify-between"><span class="text-gray-500" data-i18n="emailLabel">ອີເມວ:</span> <span id="profileEmailDisplay" class="font-semibold"></span></div>
+                <div class="flex justify-between"><span class="text-gray-500" data-i18n="addressLabel">ທີ່ຢູ່:</span> <span id="profileAddrDisplay" class="font-semibold text-right max-w-[200px] truncate"></span></div>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="toggleProfileModal(); toggleOrdersModal();" class="flex-1 bg-brand-yellow text-black font-bold py-2.5 rounded-xl hover:bg-yellow-400 transition text-xs flex items-center justify-center gap-1.5 shadow">
+                    <i class="fa-solid fa-receipt"></i> <span data-i18n="viewOrders">ເບິ່ງລາຍການສັ່ງຊື້</span>
+                </button>
+                <button onclick="logoutUser()" class="flex-1 bg-red-100 text-red-600 font-bold py-2.5 rounded-xl hover:bg-red-200 transition text-xs flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-right-from-bracket"></i> <span data-i18n="logoutText">ອອກຈາກລະບົບ</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART SLIDE-OVER -->
+    <div id="cartModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end">
+        <div class="bg-white w-full max-w-md h-full flex flex-col shadow-2xl">
+            <div class="p-4 bg-brand-black text-white flex items-center justify-between">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-cart-shopping text-brand-yellow"></i> <span data-i18n="cartTitle">ກະຕ່າສິນຄ້າຂອງທ່ານ</span>
+                </h3>
+                <button onclick="toggleCartModal()" class="text-gray-300 hover:text-white">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            <div id="cartItemsList" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+            <div id="cartFooter" class="p-4 border-t border-gray-200 bg-gray-50 space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-gray-600 font-medium" data-i18n="totalPay">ລວມເງິນທັງໝົດ:</span>
+                    <span id="cartTotalPrice" class="text-xl font-black text-red-600">0 ₭</span>
+                </div>
+                <button onclick="openCheckoutModal()" class="w-full bg-red-600 text-white font-extrabold py-3 rounded-xl hover:bg-red-700 transition flex items-center justify-center gap-2 shadow-md uppercase tracking-wider text-sm">
+                    <span data-i18n="btnCheckout">ດຳເນີນການສັ່ງຊື້</span> <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div id="checkoutModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 relative shadow-2xl max-h-[90vh] overflow-y-auto">
+            <button onclick="closeCheckoutModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full h-8 w-8 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-extrabold text-gray-900 border-b pb-3 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-file-invoice-dollar text-brand-blue"></i> <span data-i18n="checkoutHeading">ຂໍ້ມູນການສັ່ງຊື້</span>
+            </h3>
+            <form id="checkoutForm" onsubmit="handleOrderSubmit(event)" class="space-y-3 text-xs sm:text-sm">
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="fullNameLabel">ຊື່ ແລະ ນາມສະກຸນ *</label>
+                    <input type="text" id="custName" required class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="phoneLabel">ເບີໂທລະສັບ *</label>
+                    <input type="tel" id="custPhone" required class="w-full border border-gray-300 rounded-xl p-2.5 outline-none">
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="addressLabel">ທີ່ຢູ່ຈັດສົ່ງ *</label>
+                    <textarea id="custAddr" required rows="2" class="w-full border border-gray-300 rounded-xl p-2.5 outline-none"></textarea>
+                </div>
+                <div>
+                    <label class="block font-medium text-gray-700 mb-1" data-i18n="paymentMethod">ຮູບແບບການຊຳລະ</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <label class="border rounded-xl p-2.5 flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-white">
+                            <input type="radio" name="payment" value="COD" checked class="text-brand-blue" onchange="togglePaymentMethod()">
+                            <span class="text-xs font-semibold" data-i18n="codPay">ຊຳລະປາຍທາງ (COD)</span>
+                        </label>
+                        <label class="border rounded-xl p-2.5 flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-white">
+                            <input type="radio" name="payment" value="BANK" class="text-brand-blue" onchange="togglePaymentMethod()">
+                            <span class="text-xs font-semibold" data-i18n="bankPay">ໂອນຜ່ານ QR Code</span>
+                        </label>
+                    </div>
+
+                    <!-- QR CODE & SLIP UPLOAD -->
+                    <div id="qrCodeSection" class="hidden mt-3 p-3 bg-gray-50 rounded-2xl border text-center space-y-3">
+                        <p class="text-xs font-semibold text-gray-700 mb-1" data-i18n="scanQrLabel">ສະແກນ QR ເພື່ອໂອນເງິນ:</p>
+                        <img id="dynamicQrImg" src="" alt="QR Code" class="w-32 h-32 object-contain mx-auto border rounded-xl bg-white p-1 shadow-sm">
+                        <p id="dynamicBankInfo" class="text-[11px] text-gray-500">ທະນາຄານ - ເລກບັນຊີ:</p>
+                        <p class="text-[11px] text-red-600 font-bold"><span data-i18n="qrAmount">ຈຳນວນເງິນ:</span> <span id="qrAmountDisplay">0 ₭</span></p>
+
+                        <div class="text-left pt-2 border-t">
+                            <label class="block font-medium mb-1 text-xs">ອັບໂຫຼດຮູບພາບຫຼັກຖານການໂອນເງິນ (Slip) *</label>
+                            <input type="file" id="transferSlipInput" accept="image/*" onchange="previewSlipImage(event)" class="w-full border rounded-xl p-2 text-xs bg-white">
+                        </div>
+                        <div id="slipPreviewContainer" class="hidden">
+                            <p class="text-[10px] text-green-600 font-bold mb-1">ຮູບພາບທີ່ເລືອກ:</p>
+                            <img id="slipPreviewImg" src="" alt="Slip Preview" class="w-24 h-24 object-cover mx-auto border rounded-lg shadow">
+                        </div>
+                    </div>
+                </div>
+                <div class="border-t pt-3 mt-4 flex items-center justify-between">
+                    <div>
+                        <span class="block text-xs text-gray-500" data-i18n="totalPay">ລວມເງິນທັງໝົດ:</span>
+                        <span id="checkoutTotalPrice" class="text-lg font-black text-red-600">0 ₭</span>
+                    </div>
+                    <button type="submit" class="bg-brand-yellow text-black font-extrabold px-6 py-2.5 rounded-xl hover:bg-yellow-400 transition shadow" data-i18n="confirmOrder">ຢືນຢັນການສັ່ງຊື້</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ORDER SUCCESS MODAL -->
+    <div id="successModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl relative">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-gray-900 mb-1" data-i18n="orderSuccessTitle">ສັ່ງຊື້ສໍາເລັດ!</h3>
+            <p class="text-xs text-gray-600 mb-4"><span data-i18n="orderSuccessMsg">ຂອບໃຈທີ່ໄວ້ວາງໃຈ Thế Giới Di Động. ລະຫັດຄຳສັ່ງຊື້ຂອງທ່ານແມ່ນ</span> <span id="orderIdDisplay" class="font-bold text-black">#TGDD1234</span>.</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-black text-white font-bold py-2.5 rounded-xl hover:bg-gray-800 transition" data-i18n="continueShopping">ຊື້ສິນຄ້າຕໍ່</button>
+        </div>
+    </div>
+
+    <!-- ORDER HISTORY MODAL -->
+    <div id="ordersModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 relative shadow-2xl max-h-[85vh] overflow-y-auto">
+            <button onclick="toggleOrdersModal()" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full h-8 w-8 flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 class="text-lg font-extrabold text-gray-900 border-b pb-3 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left text-brand-blue"></i> <span data-i18n="orderHistoryHeading">ປະວັດການສັ່ງຊື້ ແລະ ຊຳລະເງິນ</span>
+            </h3>
+            <div id="ordersList" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const i18n = {
+            searchPlaceholder: "ຄົ້ນຫາສິນຄ້າ: iPhone 15, Laptop Gaming, Samsung...",
+            orderHistory: "ປະຫວັດຊື້",
+            registerTitle: "ລົງທະບຽນ",
+            loginTitle: "ເຂົ້າສູ່ລະບົບ",
+            cartTitle: "ກະຕ່າສິນຄ້າ",
+            catAll: "ທັງໝົດ",
+            catPhone: "ໂທລະສັບ",
+            catLaptop: "ແລັບທັອບ",
+            catTablet: "ແທັບເລັດ",
+            catAccessory: "ອຸປະກອນເສີມ",
+            catWatch: "ໂມງ",
+            heroBadge1: "ສິນຄ້າສຸດຍອດ 2026",
+            heroDesc1: "ໄທເທນຽມທຳມະຊາດ - ຫຼຸດທັນທີເມື່ອເອົາເຄື່ອງເກົ່າປ່ຽນໃໝ່.",
+            heroBadge2: "ຕ້ອນຮັບເປີດສົກຮຽນ",
+            heroDesc2: "ບາງເບົາ, ໃຊ້ງານໄດ້ 18 ຊົ່ວໂມງ. ປ່ຽນໃໝ່ຮັບປະກັນ 2 ປີ.",
+            studentPromoTag: "ສິດທິພິເສດ S-Student",
+            studentPromoTitle: "ຫຼຸດເພີ່ມ 5% ສຳລັບນັກຮຽນ",
+            studentPromoDesc: "ນຳໃຊ້ຮ່ວມກັບໂປຣໂມຊັນອື່ນໆໄດ້",
+            btnBuyLaptop: "ຊື້ແລັບທັອບເລີຍ",
+            installmentTag: "ຜ່ອນ 0%",
+            installmentTitle: "ອະນຸມັດພາຍໃນ 5 ນາທີ",
+            installmentDesc: "ບໍ່ຕ້ອງມີໃບຢັ້ງຢືນລາຍຮັບ",
+            btnBuyInstallment: "ຊື້ຜ່ອນ",
+            flashSaleEnding: "ລາຄາພິເສດສິ້ນສຸດໃນ:",
+            endsIn: "ສິ້ນສຸດໃນ:",
+            remainingStock: "ຍັງເຫຼືອ",
+            units: "ເຄື່ອງ",
+            brandLabel: "ແບຣນ:",
+            brandAll: "ທັງໝົດ",
+            priceAll: "ລາຄາ: ທັງໝົດ",
+            priceUnder10: "ຕ່ຳກວ່າ 400$",
+            price10to20: "ລະຫວ່າງ 400$ - 800$",
+            priceOver20: "ຫຼາຍກວ່າ 800$",
+            sortFeatured: "ໂດດເດັ່ນ",
+            sortAsc: "ລາຄາ: ຕ່ຳຫາສູງ",
+            sortDesc: "ລາຄາ: ສູງຫາຕ່ຳ",
+            allProducts: "ສິນຄ້າທັງໝົດ",
+            displayingCount: "ກຳລັງສະແດງ",
+            productsText: "ສິນຄ້າ",
+            noProducts: "ບໍ່ພົບສິນຄ້າ!",
+            tryResetFilter: "ລອງປັບຕົວຕອງລາຄາ ຫຼື ເລືອກແບຣນອື່ນ.",
+            clearFilters: "ລຶບຕົວຕອງທັງໝົດ",
+            addToCart: "ເພີ່ມເຂົ້າກະຕ່າ",
+            buyNow: "ຊື້ທັນທີ",
+            installmentBadge: "ຜ່ອນ 0%",
+            flashBadge: "ລາຄາຮ້ອນ",
+            specsHeading: "ຂໍ້ມູນທາງເຕັກນິກລະອຽດ:",
+            selectColor: "ເລືອກສີ:",
+            selectStorage: "ເລືອກຄວາມຈຸ:",
+            emptyCart: "ກະຕ່າຂອງທ່ານຍັງຫວ່າງຢູ່",
+            totalPay: "ລວມເງິນທັງໝົດ:",
+            btnCheckout: "ດຳເນີນການສັ່ງຊື້",
+            checkoutHeading: "ຂໍ້ມູນການສັ່ງຊື້",
+            fullNameLabel: "ຊື່ ແລະ ນາມສະກຸນ *",
+            phoneLabel: "ເບີໂທລະສັບ *",
+            dobLabel: "ວັນເດືອນປີເກີດ *",
+            addressLabel: "ທີ່ຢູ່ *",
+            emailLabel: "ອີເມວ *",
+            loginTab: "ເຂົ້າສູ່ລະບົບ",
+            registerTab: "ລົງທະບຽນບັນຊີ",
+            confirmLogin: "ເຂົ້າສູ່ລະບົບເລີຍ",
+            confirmRegister: "ລົງທະບຽນເລີຍ",
+            memberAccount: "ບັນຊີສະມາຊິກ",
+            logoutText: "ອອກຈາກລະບົບ",
+            viewOrders: "ເບິ່ງລາຍການສັ່ງຊື້",
+            paymentMethod: "ຮູບແບບການຊຳລະ",
+            codPay: "ຊຳລະປາຍທາງ (COD)",
+            bankPay: "ໂອນຜ່ານ QR Code",
+            scanQrLabel: "ສະແກນ QR ເພື່ອໂອນເງິນ:",
+            qrAmount: "ຈຳນວນເງິນ:",
+            confirmOrder: "ຢືນຢັນການສັ່ງຊື້",
+            orderSuccessTitle: "ສັ່ງຊື້ສໍາເລັດ!",
+            orderSuccessMsg: "ຂອບໃຈທີ່ໄວ້ວາງໃຈ Thế Giới Di Động. ລະຫັດຄຳສັ່ງຊື້ຂອງທ່ານແມ່ນ",
+            continueShopping: "ຊື້ສິນຄ້າຕໍ່",
+            orderHistoryHeading: "ປະວັດການສັ່ງຊື້ ແລະ ຊຳລະເງິນ",
+            noOrders: "ບໍ່ມີປະວັດການສັ່ງຊື້.",
+            orderTotal: "ລວມເງິນທັງໝົດ:",
+            recipientLabel: "ຜູ້ຮັບ:",
+            addressOrderLabel: "ທີ່ຢູ່:",
+            paymentOrderLabel: "ຮູບແບບການຊຳລະ:",
+            paymentStatusLabel: "ສະຖານະການຊຳລະ:",
+            statusPaid: "ຊຳລະແລ້ວ (QR ໂອນເງິນ)",
+            statusPending: "ລໍຖ້າຊຳລະ (COD)",
+            orderedProductsHeading: "ສິນຄ້າທີ່ສັ່ງຊື້:"
+        };
+
+        const defaultProducts = [
+            {
+                id: 1, category: "phone", brand: "Apple", price: 29590000, oldPrice: 34990000, rating: 4.9, reviews: 428,
+                image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=500&q=80",
+                gallery: ["https://images.unsplash.com/photo-1695048133142-1a20484d2569?auto=format&fit=crop&w=500&q=80"],
+                colors: ["ໄທເທນຽມທຳມະຊາດ", "ໄທເທນຽມດຳ"], storageOptions: ["256GB", "512GB", "1TB"], isFlashSale: true, stock: 12,
+                name: "iPhone 15 Pro Max 256GB",
+                specs: { screen: "6.7 ນິ້ວ OLED Super Retina XDR", cpu: "Apple A17 Pro", ram: "8 GB", storage: "256 GB", camera: "48 MP", battery: "4422 mAh" }
+            }
+        ];
+
+        let productsData = JSON.parse(localStorage.getItem('tgdd_products')) || defaultProducts;
+        let cart = JSON.parse(localStorage.getItem('tgdd_cart')) || [];
+        let ordersHistory = JSON.parse(localStorage.getItem('tgdd_orders')) || [];
+        let registeredUsers = JSON.parse(localStorage.getItem('tgdd_users')) || [];
+        let currentUser = JSON.parse(localStorage.getItem('tgdd_current_user')) || null;
+        let currentCategory = 'all';
+        let currentBrand = 'all';
+        let currentBannerIndex = 0;
+        let uploadedSlipDataUrl = "";
+
+        window.onload = function () {
+            applyLanguageUI();
+            renderAuthHeader();
+            loadDynamicSettings();
+            renderFlashSale();
+            applyFilters();
+            updateCartBadge();
+            startCountdown();
+            setInterval(nextBanner, 4000);
+        };
+
+        function loadDynamicSettings() {
+            const contact = JSON.parse(localStorage.getItem('tgdd_contact_settings')) || { phone: '18001060', whatsapp: '84901234567' };
+            document.getElementById('floatingPhoneBtn').href = `tel:${contact.phone}`;
+            document.getElementById('floatingWhatsappBtn').href = `https://wa.me/${contact.whatsapp}`;
+
+            const bank = JSON.parse(localStorage.getItem('tgdd_bank_settings')) || { name: 'BCEL', acc: '123456789', qr: 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TGDD_QR' };
+            document.getElementById('dynamicQrImg').src = bank.qr;
+            document.getElementById('dynamicBankInfo').textContent = `${bank.name} - ເລກບັນຊີ: ${bank.acc}`;
+        }
+
+        function applyLanguageUI() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[key]) {
+                    el.textContent = i18n[key];
+                }
+            });
+            document.getElementById('searchInput').placeholder = i18n.searchPlaceholder;
+        }
+
+        function formatCurrency(amount) {
+            const num = Number(amount);
+            if (isNaN(num)) return "0 ₭";
+            return num.toLocaleString('lo-LA') + ' ₭';
+        }
+
+        function showBanner(index) {
+            const container = document.getElementById('bannerContainer');
+            if (!container) return;
+            const totalSlides = container.children.length;
+            if (index >= totalSlides) currentBannerIndex = 0;
+            else if (index < 0) currentBannerIndex = totalSlides - 1;
+            else currentBannerIndex = index;
+            container.style.transform = `translateX(-${currentBannerIndex * 100}%)`;
+        }
+        function nextBanner() { showBanner(currentBannerIndex + 1); }
+        function prevBanner() { showBanner(currentBannerIndex - 1); }
+
+        function renderFlashSale() {
+            const container = document.getElementById('flashSaleContainer');
+            if(!container) return;
+            const flashProducts = productsData.filter(p => p.isFlashSale);
+            if (flashProducts.length === 0) {
+                container.innerHTML = `<p class="text-xs text-white col-span-full text-center">ບໍ່ມີສິນຄ້າ Flash Sale ໃນຂະນະນີ້</p>`;
+                return;
+            }
+            container.innerHTML = flashProducts.map(p => `
+                <div onclick="openProductModal(${p.id})" class="bg-white text-gray-900 rounded-xl p-3 flex flex-col justify-between shadow hover:shadow-lg transition cursor-pointer group">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="bg-red-100 text-red-600 text-[10px] font-extrabold px-2 py-0.5 rounded-full">${i18n.flashBadge}</span>
+                            <span class="text-xs font-bold text-gray-400"><i class="fa-solid fa-star text-yellow-400"></i> ${p.rating || 4.8}</span>
+                        </div>
+                        <img src="${p.image}" class="w-full h-32 object-contain mb-2 group-hover:scale-105 transition-transform" alt="${p.name}">
+                        <h4 class="font-bold text-xs line-clamp-2 mb-1">${p.name}</h4>
+                    </div>
+                    <div>
+                        <p class="text-red-600 font-extrabold text-xs sm:text-sm">${formatCurrency(p.price)}</p>
+                        ${p.oldPrice ? `<p class="text-gray-400 text-[10px] line-through">${formatCurrency(p.oldPrice)}</p>` : ''}
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2 overflow-hidden relative">
+                            <div class="bg-red-600 h-full rounded-full" style="width: ${((p.stock || 10) / 30) * 100}%"></div>
+                        </div>
+                        <span class="text-[10px] text-gray-500 mt-1 block">${i18n.remainingStock} ${p.stock || 10} ${i18n.units}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterByCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.classList.remove('border-brand-yellow', 'text-brand-yellow', 'active');
+                btn.classList.add('border-transparent');
+            });
+            event?.currentTarget?.classList.add('border-brand-yellow', 'text-brand-yellow', 'active');
+            applyFilters();
+        }
+
+        function filterByBrand(brand) {
+            currentBrand = brand;
+            document.querySelectorAll('.brand-btn').forEach(btn => {
+                btn.classList.remove('bg-black', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-gray-100', 'text-gray-800');
+            });
+            event?.currentTarget?.classList.remove('bg-gray-100', 'text-gray-800');
+            event?.currentTarget?.classList.add('bg-black', 'text-white', 'shadow-sm');
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const priceFilter = document.getElementById('priceFilter').value;
+            const sortSelect = document.getElementById('sortSelect').value;
+
+            let filtered = productsData.filter(p => {
+                const matchCat = currentCategory === 'all' || p.category === currentCategory;
+                const matchBrand = currentBrand === 'all' || p.brand === currentBrand;
+                let matchPrice = true;
+                if (priceFilter === 'under-10') matchPrice = p.price < 10000000;
+                else if (priceFilter === '10-20') matchPrice = p.price >= 10000000 && p.price <= 20000000;
+                else if (priceFilter === 'over-20') matchPrice = p.price > 20000000;
+                return matchCat && matchBrand && matchPrice;
+            });
+
+            if (sortSelect === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+            else if (sortSelect === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+
+            renderProducts(filtered);
+        }
+
+        function resetFilters() {
+            currentCategory = 'all';
+            currentBrand = 'all';
+            document.getElementById('priceFilter').value = 'all';
+            document.getElementById('sortSelect').value = 'featured';
+            applyFilters();
+        }
+
+        function renderProducts(list) {
+            const grid = document.getElementById('productGrid');
+            const empty = document.getElementById('emptyState');
+            const countEl = document.getElementById('productCount');
+
+            countEl.textContent = `${i18n.displayingCount} ${list.length} ${i18n.productsText}`;
+
+            if (list.length === 0) {
+                grid.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+
+            grid.innerHTML = list.map(p => `
+                <div onclick="openProductModal(${p.id})" class="bg-white rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-xl transition border border-gray-100 flex flex-col justify-between cursor-pointer group">
+                    <div>
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="bg-blue-50 text-brand-blue text-[10px] font-extrabold px-2 py-0.5 rounded-full">${i18n.installmentBadge}</span>
+                            <span class="text-xs font-semibold text-gray-400"><i class="fa-solid fa-star text-yellow-400"></i> ${p.rating || 4.8}</span>
+                        </div>
+                        <div class="overflow-hidden rounded-xl mb-3 bg-gray-50 h-40 flex items-center justify-center">
+                            <img src="${p.image}" class="h-36 object-contain group-hover:scale-105 transition-transform duration-300" alt="${p.name}">
+                        </div>
+                        <h3 class="font-bold text-xs sm:text-sm text-gray-800 line-clamp-2 mb-1 group-hover:text-brand-blue transition">${p.name}</h3>
+                        <div class="text-[11px] text-gray-500 mb-2 truncate bg-gray-50 p-1 rounded">
+                            ${p.specs?.screen || ''}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="mb-3">
+                            <span class="text-red-600 font-black text-sm sm:text-base">${formatCurrency(p.price)}</span>
+                            ${p.oldPrice ? `<span class="text-gray-400 text-xs line-through block sm:inline sm:ml-1.5">${formatCurrency(p.oldPrice)}</span>` : ''}
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="event.stopPropagation(); addToCart(${p.id})" class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold text-[11px] py-2 rounded-xl transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-cart-plus"></i> <span data-i18n="addToCart">ເພີ່ມເຂົ້າກະຕ່າ</span>
+                            </button>
+                            <button onclick="event.stopPropagation(); buyNow(${p.id})" class="bg-brand-yellow hover:bg-yellow-400 text-black font-extrabold text-[11px] py-2 rounded-xl transition shadow-sm" data-i18n="buyNow">ຊື້ທັນທີ</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleSearch() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const dropdown = document.getElementById('searchDropdown');
+            if (!query) {
+                dropdown.classList.add('hidden');
+                dropdown.innerHTML = '';
+                return;
+            }
+
+            const matched = productsData.filter(p => p.name.toLowerCase().includes(query) || p.brand.toLowerCase().includes(query));
+            if (matched.length === 0) {
+                dropdown.innerHTML = `<div class="p-3 text-xs text-gray-500 text-center" data-i18n="noProducts">ບໍ່ພົບສິນຄ້າ!</div>`;
+                dropdown.classList.remove('hidden');
+                return;
+            }
+
+            dropdown.innerHTML = matched.map(p => `
+                <div onclick="openProductModal(${p.id}); document.getElementById('searchDropdown').classList.add('hidden');" class="flex items-center gap-3 p-2.5 hover:bg-gray-50 cursor-pointer border-b last:border-none">
+                    <img src="${p.image}" class="w-10 h-10 object-contain rounded bg-gray-100">
+                    <div>
+                        <h4 class="font-bold text-xs text-gray-800">${p.name}</h4>
+                        <p class="text-xs text-red-600 font-bold">${formatCurrency(p.price)}</p>
+                    </div>
+                </div>
+            `).join('');
+            dropdown.classList.remove('hidden');
+        }
+
+        function openProductModal(id) {
+            const p = productsData.find(item => item.id === id);
+            if (!p) return;
+
+            const galleryImgs = p.gallery && p.gallery.length > 0 ? p.gallery : [p.image];
+
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <div class="bg-gray-50 rounded-2xl p-4 flex items-center justify-center mb-3 h-72 border">
+                            <img src="${p.image}" id="mainModalImg" class="max-h-full object-contain">
+                        </div>
+                        <div class="flex gap-2 overflow-x-auto pb-2">
+                            ${galleryImgs.map(img => `<img src="${img}" onclick="document.getElementById('mainModalImg').src='${img}'" class="w-16 h-16 object-contain border rounded-xl cursor-pointer hover:border-brand-blue bg-white p-1">`).join('')}
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <span class="bg-brand-yellow text-black font-extrabold text-[10px] uppercase px-2 py-0.5 rounded shadow">${p.brand}</span>
+                            <h2 class="text-xl sm:text-2xl font-extrabold text-gray-900 mt-1">${p.name}</h2>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-yellow-400"><i class="fa-solid fa-star"></i> ${p.rating || 4.8}</span>
+                                <span class="text-gray-400 text-xs">(${p.reviews || 10} ${i18n.productsText})</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-2xl font-black text-red-600">${formatCurrency(p.price)}</div>
+                            ${p.oldPrice ? `<div class="text-xs text-gray-400 line-through">${formatCurrency(p.oldPrice)}</div>` : ''}
+                        </div>
+
+                        ${p.colors && p.colors.length > 0 ? `
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5" data-i18n="selectColor">ເລືອກສີ:</label>
+                            <div class="flex flex-wrap gap-2">
+                                ${p.colors.map((c, idx) => `<button class="px-3 py-1.5 text-xs font-semibold rounded-xl border ${idx===0?'border-brand-blue bg-blue-50 text-brand-blue':'border-gray-200'}">${c}</button>`).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        ${p.storageOptions && p.storageOptions.length > 0 ? `
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5" data-i18n="selectStorage">ເລືອກຄວາມຈຸ:</label>
+                            <div class="flex flex-wrap gap-2">
+                                ${p.storageOptions.map((s, idx) => `<button class="px-3 py-1.5 text-xs font-semibold rounded-xl border ${idx===0?'border-brand-blue bg-blue-50 text-brand-blue':'border-gray-200'}">${s}</button>`).join('')}
+                            </div>
+                        </div>` : ''}
+
+                        <div class="bg-gray-50 rounded-2xl p-3 border space-y-1 text-xs">
+                            <h4 class="font-extrabold text-gray-800 mb-1.5 text-sm border-b pb-1" data-i18n="specsHeading">ຂໍ້ມູນທາງເຕັກນິກລະອຽດ:</h4>
+                            <div class="space-y-1.5">
+                                ${p.specs?.screen ? `<div><strong class="text-gray-600">ໜ້າຈໍ:</strong> <span class="text-gray-800">${p.specs.screen}</span></div>` : ''}
+                                ${p.specs?.cpu ? `<div><strong class="text-gray-600">CPU / ຊິບ:</strong> <span class="text-gray-800">${p.specs.cpu}</span></div>` : ''}
+                                ${p.specs?.ram ? `<div><strong class="text-gray-600">ແຮມ (RAM):</strong> <span class="text-gray-800">${p.specs.ram}</span></div>` : ''}
+                                ${p.specs?.storage ? `<div><strong class="text-gray-600">ຄວາມຈຸ (Storage):</strong> <span class="text-gray-800">${p.specs.storage}</span></div>` : ''}
+                                ${p.specs?.gpu ? `<div><strong class="text-gray-600">ກາດຈໍ (GPU):</strong> <span class="text-gray-800">${p.specs.gpu}</span></div>` : ''}
+                                ${p.specs?.camera ? `<div><strong class="text-gray-600">ກ້ອງຖ່າຍຮູບ:</strong> <span class="text-gray-800">${p.specs.camera}</span></div>` : ''}
+                                ${p.specs?.battery ? `<div><strong class="text-gray-600">ແບັດເຕີຣີ ແລະ ການຊາດ:</strong> <span class="text-gray-800">${p.specs.battery}</span></div>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 pt-2">
+                            <button onclick="addToCart(${p.id}); closeProductModal(); toggleCartModal();" class="bg-black text-brand-yellow font-extrabold py-3 rounded-xl hover:bg-gray-800 transition text-xs uppercase shadow" data-i18n="addToCart">ເພີ່ມເຂົ້າກະຕ່າ</button>
+                            <button onclick="buyNow(${p.id}); closeProductModal();" class="bg-red-600 text-white font-extrabold py-3 rounded-xl hover:bg-red-700 transition text-xs uppercase shadow" data-i18n="buyNow">ຊື້ທັນທີ</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('productModal').classList.remove('hidden');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.add('hidden');
+        }
+
+        function addToCart(id) {
+            const p = productsData.find(item => item.id === id);
+            if(!p) return;
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ ...p, quantity: 1 });
+            }
+            saveCart();
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        function updateCartQuantity(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (!item) return;
+            item.quantity += delta;
+            if (item.quantity <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            saveCart();
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        function saveCart() {
+            localStorage.setItem('tgdd_cart', JSON.stringify(cart));
+        }
+
+        function updateCartBadge() {
+            const totalQty = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = totalQty;
+        }
+
+        function toggleCartModal() {
+            document.getElementById('cartModal').classList.toggle('hidden');
+            renderCartItems();
+        }
+
+        function renderCartItems() {
+            const list = document.getElementById('cartItemsList');
+            const totalEl = document.getElementById('cartTotalPrice');
+
+            if (cart.length === 0) {
+                list.innerHTML = `<div class="text-center py-16 text-gray-400"><i class="fa-solid fa-cart-shopping text-4xl mb-2"></i><p class="text-xs" data-i18n="emptyCart">ກະຕ່າຂອງທ່ານຍັງຫວ່າງຢູ່</p></div>`;
+                totalEl.textContent = formatCurrency(0);
+                return;
+            }
+
+            let total = 0;
+            list.innerHTML = cart.map(item => {
+                total += item.price * item.quantity;
+                return `
+                    <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border">
+                        <img src="${item.image}" class="w-16 h-16 object-contain bg-white rounded-xl p-1 border">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-xs text-gray-800 line-clamp-1">${item.name}</h4>
+                            <p class="text-red-600 font-extrabold text-xs mt-0.5">${formatCurrency(item.price)}</p>
+                            <div class="flex items-center gap-2 mt-2">
+                                <button onclick="updateCartQuantity(${item.id}, -1)" class="w-6 h-6 bg-white border rounded-lg flex items-center justify-center font-bold text-xs">-</button>
+                                <span class="text-xs font-bold">${item.quantity}</span>
+                                <button onclick="updateCartQuantity(${item.id}, 1)" class="w-6 h-6 bg-white border rounded-lg flex items-center justify-center font-bold text-xs">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            totalEl.textContent = formatCurrency(total);
+        }
+
+        function buyNow(id) {
+            addToCart(id);
+            toggleCartModal();
+        }
+
+        function openCheckoutModal() {
+            if (cart.length === 0) return;
+            toggleCartModal();
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            document.getElementById('checkoutTotalPrice').textContent = formatCurrency(total);
+            document.getElementById('qrAmountDisplay').textContent = formatCurrency(total);
+
+            if (currentUser) {
+                document.getElementById('custName').value = currentUser.name || '';
+                document.getElementById('custPhone').value = currentUser.phone || '';
+                document.getElementById('custAddr').value = currentUser.address || '';
+            }
+            document.getElementById('checkoutModal').classList.remove('hidden');
+        }
+
+        function closeCheckoutModal() {
+            document.getElementById('checkoutModal').classList.add('hidden');
+        }
+
+        function togglePaymentMethod() {
+            const method = document.querySelector('input[name="payment"]:checked').value;
+            const qrSec = document.getElementById('qrCodeSection');
+            if (method === 'BANK') {
+                qrSec.classList.remove('hidden');
+            } else {
+                qrSec.classList.add('hidden');
+            }
+        }
+
+        function previewSlipImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedSlipDataUrl = e.target.result;
+                    document.getElementById('slipPreviewImg').src = uploadedSlipDataUrl;
+                    document.getElementById('slipPreviewContainer').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function handleOrderSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const addr = document.getElementById('custAddr').value;
+            const payment = document.querySelector('input[name="payment"]:checked').value;
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            if (payment === 'BANK' && !uploadedSlipDataUrl) {
+                alert("ກະລຸນາອັບໂຫຼດຮູບພາບຫຼັກຖານການໂອນເງິນ (Slip) ກ່ອນຢືນຢັນ!");
+                return;
+            }
+
+            const orderId = '#TGDD' + Math.floor(1000 + Math.random() * 9000);
+            const newOrder = {
+                id: orderId,
+                date: new Date().toLocaleDateString(),
+                items: [...cart],
+                total: total,
+                recipient: name,
+                phone: phone,
+                address: addr,
+                paymentMethod: payment,
+                isPaid: payment === 'BANK',
+                slipImage: uploadedSlipDataUrl || "",
+                isNew: true
+            };
+
+            ordersHistory.unshift(newOrder);
+            localStorage.setItem('tgdd_orders', JSON.stringify(ordersHistory));
+
+            cart = [];
+            uploadedSlipDataUrl = "";
+            saveCart();
+            updateCartBadge();
+            closeCheckoutModal();
+
+            document.getElementById('orderIdDisplay').textContent = orderId;
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+        }
+
+        function toggleOrdersModal() {
+            document.getElementById('ordersModal').classList.toggle('hidden');
+            renderOrdersList();
+        }
+
+        function renderOrdersList() {
+            const container = document.getElementById('ordersList');
+            if (ordersHistory.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-400 text-center py-6" data-i18n="noOrders">ບໍ່ມີປະວັດການສັ່ງຊື້.</p>`;
+                return;
+            }
+
+            container.innerHTML = ordersHistory.map((order, index) => `
+                <div class="bg-gray-50 rounded-2xl p-4 border space-y-2 text-xs">
+                    <div class="flex justify-between items-center border-b pb-2">
+                        <span class="font-extrabold text-black text-sm">${order.id}</span>
+                        <span class="text-gray-400">${order.date}</span>
+                    </div>
+                    <div class="space-y-1">
+                        <p><span class="text-gray-500" data-i18n="recipientLabel">ຜູ້ຮັບ:</span> <span class="font-semibold">${order.recipient} (${order.phone})</span></p>
+                        <p><span class="text-gray-500" data-i18n="addressOrderLabel">ທີ່ຢູ່:</span> <span class="font-semibold">${order.address}</span></p>
+                        <p><span class="text-gray-500" data-i18n="paymentOrderLabel">ຮູບແບບການຊຳລະ:</span> <span class="font-semibold">${order.paymentMethod === 'BANK' ? 'QR Code' : 'COD'}</span></p>
+                        <p><span class="text-gray-500" data-i18n="paymentStatusLabel">ສະຖານະ:</span> <span class="font-bold ${order.isPaid ? 'text-green-600':'text-orange-500'}">${order.isPaid ? i18n.statusPaid : i18n.statusPending}</span></p>
+                        ${order.slipImage ? `<div class="mt-2"><strong class="text-gray-500">ຫຼັກຖານການໂອນ:</strong><br><a href="${order.slipImage}" target="_blank"><img src="${order.slipImage}" class="w-20 h-20 object-cover mt-1 rounded border shadow cursor-pointer"></a></div>` : ''}
+                    </div>
+                    <div class="border-t pt-2">
+                        <p class="font-bold text-gray-700 mb-1" data-i18n="orderedProductsHeading">ສິນຄ້າທີ່ສັ່ງຊື້:</p>
+                        <div class="space-y-1">
+                            ${order.items.map(i => `<div class="flex justify-between text-gray-600"><span>- ${i.name} (x${i.quantity})</span> <span class="font-bold">${formatCurrency(i.price * i.quantity)}</span></div>`).join('')}
+                        </div>
+                    </div>
+                    <div class="border-t pt-2 flex justify-between items-center font-extrabold text-sm text-red-600">
+                        <span data-i18n="orderTotal">ລວມເງິນທັງໝົດ:</span>
+                        <span>${formatCurrency(order.total)}</span>
+                    </div>
+                    <!-- NÚT XÓA ĐƠN HÀNG CHO KHÁCH HÀNG -->
+                    <div class="flex justify-end pt-2 border-t">
+                        <button onclick="deleteCustomerOrder(${index})" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold px-3 py-1.5 rounded-lg text-xs transition flex items-center gap-1">
+                            <i class="fa-solid fa-trash"></i> ລຶບອິນນີ້
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteCustomerOrder(index) {
+            if (confirm("ທ່ານແນ່ໃຈບໍວ່າຕ້ອງການລຶບປະຫວັດການສັ່ງຊື້ບິນນີ້?")) {
+                ordersHistory.splice(index, 1);
+                localStorage.setItem('tgdd_orders', JSON.stringify(ordersHistory));
+                renderOrdersList();
+            }
+        }
+
+        // AUTH SYSTEM LOGIC
+        function renderAuthHeader() {
+            const area = document.getElementById('authHeaderArea');
+            if (currentUser) {
+                area.innerHTML = `
+                    <button onclick="toggleProfileModal()" class="flex items-center gap-1.5 bg-brand-yellow text-black font-bold text-xs px-3 py-1.5 rounded-full transition shadow border border-black/10">
+                        <i class="fa-solid fa-user-check"></i>
+                        <span class="max-w-[80px] truncate">${currentUser.name}</span>
+                    </button>
+                `;
+            } else {
+                area.innerHTML = `
+                    <button onclick="openRegisterModal()" class="flex items-center gap-1 bg-black/10 hover:bg-black/20 text-black font-bold text-xs px-2.5 py-1.5 rounded-full transition border border-black/10">
+                        <i class="fa-solid fa-user text-xs"></i>
+                        <span class="hidden sm:inline" data-i18n="loginTitle">ເຂົ້າສູ່ລະບົບ</span>
+                    </button>
+                `;
+            }
+        }
+
+        function openRegisterModal() {
+            document.getElementById('registerModal').classList.remove('hidden');
+        }
+        function closeRegisterModal() {
+            document.getElementById('registerModal').classList.add('hidden');
+        }
+
+        function switchAuthTab(tab) {
+            const loginTab = document.getElementById('loginTabBtn');
+            const regTab = document.getElementById('registerTabBtn');
+            const loginForm = document.getElementById('loginForm');
+            const regForm = document.getElementById('registerForm');
+
+            if (tab === 'login') {
+                loginTab.className = "flex-1 pb-2 font-extrabold text-sm text-brand-blue border-b-2 border-brand-blue";
+                regTab.className = "flex-1 pb-2 font-extrabold text-sm text-gray-400 border-b-2 border-transparent";
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+            } else {
+                regTab.className = "flex-1 pb-2 font-extrabold text-sm text-brand-blue border-b-2 border-brand-blue";
+                loginTab.className = "flex-1 pb-2 font-extrabold text-sm text-gray-400 border-b-2 border-transparent";
+                regForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
+
+        function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const newUser = {
+                name: document.getElementById('regName').value,
+                phone: document.getElementById('regPhone').value,
+                dob: document.getElementById('regDob').value,
+                address: document.getElementById('regAddr').value,
+                email: document.getElementById('regEmail').value
+            };
+
+            registeredUsers.push(newUser);
+            localStorage.setItem('tgdd_users', JSON.stringify(registeredUsers));
+
+            currentUser = newUser;
+            localStorage.setItem('tgdd_current_user', JSON.stringify(currentUser));
+
+            closeRegisterModal();
+            renderAuthHeader();
+            alert("ລົງທະບຽນບັນຊີສຳເລັດ!");
+        }
+
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value;
+            const email = document.getElementById('loginEmail').value;
+
+            const found = registeredUsers.find(u => u.phone === phone && u.email === email);
+            if (found) {
+                currentUser = found;
+                localStorage.setItem('tgdd_current_user', JSON.stringify(currentUser));
+                closeRegisterModal();
+                renderAuthHeader();
+                alert("ເຂົ້າສູ່ລະບົບສຳເລັດ!");
+            } else {
+                const demoUser = {
+                    name: "ລູກຄ້າ TGDD",
+                    phone: phone,
+                    dob: "2000-01-01",
+                    address: "ນະຄອນຫຼວງວຽງຈັນ",
+                    email: email
+                };
+                currentUser = demoUser;
+                localStorage.setItem('tgdd_current_user', JSON.stringify(currentUser));
+                closeRegisterModal();
+                renderAuthHeader();
+                alert("ເຂົ້າສູ່ລະບົບສຳເລັດ!");
+            }
+        }
+
+        function toggleProfileModal() {
+            const modal = document.getElementById('profileModal');
+            if (!currentUser) {
+                openRegisterModal();
+                return;
+            }
+            document.getElementById('profileNameDisplay').textContent = currentUser.name;
+            document.getElementById('profilePhoneDisplay').textContent = currentUser.phone;
+            document.getElementById('profileDobDisplay').textContent = currentUser.dob;
+            document.getElementById('profileEmailDisplay').textContent = currentUser.email;
+            document.getElementById('profileAddrDisplay').textContent = currentUser.address;
+            modal.classList.toggle('hidden');
+        }
+
+        function logoutUser() {
+            currentUser = null;
+            localStorage.removeItem('tgdd_current_user');
+            toggleProfileModal();
+            renderAuthHeader();
+        }
+
+        function startCountdown() {
+            let totalSeconds = 2 * 3600 + 45 * 60 + 12;
+            setInterval(() => {
+                if (totalSeconds <= 0) return;
+                totalSeconds--;
+                const h = Math.floor(totalSeconds / 3600);
+                const m = Math.floor((totalSeconds % 3600) / 60);
+                const s = totalSeconds % 60;
+                document.getElementById('hours').textContent = String(h).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(m).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(s).padStart(2, '0');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
